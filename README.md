@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio 02 - IDE Style
 
-## Getting Started
+Portfolio Next.js inspiré d’une interface IDE, orienté lisibilité, navigation par onglets et présentation structurée des projets.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript strict
+- Tailwind CSS v4
+- Lucide React
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run typecheck
+npm run build
+npm run check
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+app/
+  layout.tsx
+  page.tsx
+  globals.css
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+features/portfolio-ide/
+  icons.tsx              # Icônes SVG partagées (GitHub, LinkedIn)
+  model.tsx              # Données métier + types (sans style)
+  ui-config.tsx          # Mapping UI (icônes, classes, accents)
+  portfolio-ide.tsx      # Shell IDE (tabs, sidebar, navigation)
+  contents/
+    about-content.tsx
+    projects-content.tsx
+    skills-content.tsx
+    contact-content.tsx
+    index.ts             # Mapping fileId -> composant de contenu
+```
 
-## Learn More
+## Principes appliqués
 
-To learn more about Next.js, take a look at the following resources:
+- Séparation des responsabilités:
+  - `model.tsx` = contenu et types.
+  - `ui-config.tsx` = règles visuelles partagées.
+  - `contents/*` = rendu des sections.
+- Accessibilité:
+  - Pattern `tablist/tab/tabpanel`.
+  - Navigation clavier des onglets (`ArrowLeft`, `ArrowRight`, `Home`, `End`).
+- État partageable:
+  - Synchronisation de l’onglet actif avec le hash URL (`#a-propos`, `#projets`, etc.).
+- Design system:
+  - Tokens CSS centralisés dans `app/globals.css`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Personnalisation rapide
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Modifier les données: `features/portfolio-ide/model.tsx`
+- Modifier les couleurs/icônes UI: `features/portfolio-ide/ui-config.tsx`
+- Modifier la structure visuelle des sections: `features/portfolio-ide/contents/*`
