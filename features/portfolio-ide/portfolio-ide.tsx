@@ -46,6 +46,7 @@ export function PortfolioIde() {
   const [activeFileId, setActiveFileId] = useState<PortfolioFileId | null>(DEFAULT_OPEN_FILE_IDS[0]);
   const [isExplorerOpen, setIsExplorerOpen] = useState(true);
   const [isFolderOpen, setIsFolderOpen] = useState(true);
+  const isProjectsFileActive = activeFileId === "projets";
 
   const openFiles = useMemo(
     () => openFileIds.map((fileId) => PORTFOLIO_FILES_BY_ID[fileId]),
@@ -140,12 +141,15 @@ export function PortfolioIde() {
           <div className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
           <div className="h-3 w-3 rounded-full bg-[#27c93f]" />
         </div>
-        <div className="flex-1 text-center text-(--color-ide-text)">Timothé TORRES - Visual Studio Code</div>
+        <div className="flex-1 text-center text-(--color-ide-text)">
+          <span className="sm:hidden">Portfolio</span>
+          <span className="hidden sm:inline">Timothé TORRES - Visual Studio Code</span>
+        </div>
         <div className="w-12" />
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="flex w-12 flex-col items-center border-r border-(--color-ide-surface-1) bg-(--color-ide-border) py-4">
+        <aside className="hidden w-12 flex-col items-center border-r border-(--color-ide-surface-1) bg-(--color-ide-border) py-4 sm:flex">
           <button
             type="button"
             className={`mb-6 -ml-2 pl-2 transition-colors ${
@@ -189,7 +193,7 @@ export function PortfolioIde() {
         </aside>
 
         {isExplorerOpen ? (
-          <aside className="hidden w-64 flex-col border-r border-(--color-ide-bg) bg-(--color-ide-surface-1) sm:flex">
+          <aside className="hidden w-56 flex-col border-r border-(--color-ide-bg) bg-(--color-ide-surface-1) sm:flex">
             <div className="px-5 py-3 text-[11px] font-semibold tracking-wider text-(--color-ide-text) uppercase">
               Explorateur
             </div>
@@ -244,7 +248,7 @@ export function PortfolioIde() {
               return (
                 <div
                   key={file.id}
-                  className={`group flex min-w-35 max-w-55 items-center border-r border-(--color-ide-border-muted) px-2 transition-colors ${
+                  className={`group flex min-w-30 max-w-50 items-center border-r border-(--color-ide-border-muted) px-2 transition-colors sm:min-w-35 sm:max-w-55 ${
                     isActive
                       ? "border-t border-t-(--color-ide-accent-blue) bg-(--color-ide-bg) text-white"
                       : "bg-(--color-ide-surface-2) text-[#8b949e]"
@@ -269,7 +273,7 @@ export function PortfolioIde() {
 
                   <button
                     type="button"
-                    className={`ml-2 rounded-md p-0.5 hover:bg-(--color-ide-border) ${
+                    className={`ml-2 hidden rounded-md p-0.5 hover:bg-(--color-ide-border) sm:block ${
                       isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                     }`}
                     onClick={(event) => handleCloseFile(event, file.id)}
@@ -286,10 +290,18 @@ export function PortfolioIde() {
             id={activeFile ? `panel-${activeFile.id}` : undefined}
             role="tabpanel"
             aria-labelledby={activeFile ? `tab-${activeFile.id}` : undefined}
-            className="relative flex-1 overflow-auto p-6 md:p-10"
+            className={`relative flex-1 p-3 sm:p-5 md:p-6 lg:p-7 ${
+              isProjectsFileActive
+                ? "overflow-y-auto custom-scrollbar"
+                : "overflow-y-auto custom-scrollbar sm:overflow-hidden"
+            }`}
           >
             {ActiveFileContent ? (
-              <div className="mx-auto w-full max-w-4xl text-(--color-ide-text)">
+              <div
+                className={`mx-auto w-full text-(--color-ide-text) ${
+                  isProjectsFileActive ? "max-w-4xl" : "ide-fit-page max-w-5xl sm:h-full"
+                }`}
+              >
                 <ActiveFileContent />
               </div>
             ) : (
@@ -314,17 +326,17 @@ export function PortfolioIde() {
         </section>
       </div>
 
-      <footer className="flex h-6 items-center justify-between bg-(--color-ide-accent-blue) px-3 text-xs text-white select-none">
+      <footer className="flex h-6 items-center justify-between bg-(--color-ide-accent-blue) px-2 sm:px-3 text-xs text-white select-none">
         <div className="flex items-center space-x-4">
           <div className="flex cursor-pointer items-center px-1 hover:bg-[#1f8ad2]">
             <GitBranch size={14} className="mr-1" /> main
           </div>
-          <div className="cursor-pointer px-1 hover:bg-[#1f8ad2]">0 ⚠ 0 ❌</div>
+          <div className="hidden cursor-pointer px-1 hover:bg-[#1f8ad2] sm:block">0 ⚠ 0 ❌</div>
         </div>
         <div className="flex items-center space-x-4">
-          <div className="cursor-pointer px-1 hover:bg-[#1f8ad2]">Ligne 1, Col 1</div>
-          <div className="cursor-pointer px-1 hover:bg-[#1f8ad2]">Espaces : 2</div>
-          <div className="cursor-pointer px-1 hover:bg-[#1f8ad2]">UTF-8</div>
+          <div className="hidden cursor-pointer px-1 hover:bg-[#1f8ad2] sm:block">Ligne 1, Col 1</div>
+          <div className="hidden cursor-pointer px-1 hover:bg-[#1f8ad2] sm:block">Espaces : 2</div>
+          <div className="hidden cursor-pointer px-1 hover:bg-[#1f8ad2] sm:block">UTF-8</div>
           <div className="cursor-pointer px-1 hover:bg-[#1f8ad2]">{activeFile ? activeFile.language : "React"}</div>
         </div>
       </footer>
