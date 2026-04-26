@@ -30,53 +30,17 @@
 }
 
 @layer base {
+  html,
+  body {
+    min-height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer utilities {
-  .ide-fit-page {
-    --ide-fit-scale: 1;
-    height: calc(100% / var(--ide-fit-scale));
-    width: calc(100% / var(--ide-fit-scale));
-    transform: scale(var(--ide-fit-scale));
-    transform-origin: top left;
-  }
-
-  @media (max-height: 900px) {
-    .ide-fit-page {
-      --ide-fit-scale: 0.96;
-    }
-  }
-
-  @media (max-height: 820px) {
-    .ide-fit-page {
-      --ide-fit-scale: 0.92;
-    }
-  }
-
-  @media (max-height: 760px) {
-    .ide-fit-page {
-      --ide-fit-scale: 0.88;
-    }
-  }
-
-  @media (max-height: 700px) {
-    .ide-fit-page {
-      --ide-fit-scale: 0.84;
-    }
-  }
-
-  @media (max-width: 639px) {
-    .ide-fit-page {
-      --ide-fit-scale: 1;
-      height: auto;
-      width: 100%;
-      transform: none;
-    }
-  }
-
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #424242 transparent;

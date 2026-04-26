@@ -95,7 +95,7 @@ function ProjectVisual({ project, modal = false }: { project: ProjectCard; modal
   const previewStyle = isImagePreview
     ? { backgroundImage: `url(${project.preview.value})` }
     : undefined;
-  const heightClassName = modal ? "h-52 sm:h-60" : "h-40";
+  const heightClassName = modal ? "h-40 sm:h-60" : "h-36 sm:h-40";
 
   return (
     <div className={`relative overflow-hidden ${heightClassName} ${previewClassName}`} style={previewStyle}>
@@ -173,13 +173,13 @@ export function ProjectsFileContent() {
   return (
     <>
       <div className="font-sans">
-        <h1 className="mb-3 flex items-center text-3xl font-bold text-white">Mes Projets</h1>
-        <p className="mb-8 max-w-3xl text-sm leading-relaxed text-(--color-ide-text)">
+        <h1 className="mb-2 flex items-center text-2xl font-bold text-white sm:mb-3 sm:text-3xl">Mes Projets</h1>
+        <p className="mb-6 max-w-3xl text-sm leading-relaxed text-(--color-ide-text) sm:mb-8">
           Cette s&eacute;lection met en avant les projets les plus pertinents au regard de mon exp&eacute;rience
           et des technologies utilis&eacute;es. Elle n&apos;est pas exhaustive.
         </p>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           {PROJECT_CARDS.map((project) => (
             <article
               key={project.id}
@@ -191,9 +191,9 @@ export function ProjectsFileContent() {
 
               <ProjectVisual project={project} />
 
-              <div className="flex flex-1 flex-col p-5">
+              <div className="flex flex-1 flex-col p-4 sm:p-5">
                 <div className="mb-2 flex items-start justify-between gap-3">
-                  <h3 className="text-xl font-bold text-white transition-colors group-hover:text-(--color-ide-accent-cyan)">
+                  <h3 className="text-lg font-bold text-white transition-colors group-hover:text-(--color-ide-accent-cyan) sm:text-xl">
                     {project.title}
                   </h3>
                   <span
@@ -233,17 +233,17 @@ export function ProjectsFileContent() {
 
       {selectedProject ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/60 backdrop-blur-sm transition-opacity"
           onClick={closeProjectDetails}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="project-details-title"
-            className="bg-[#1e1e1e] border border-[#333333] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="bg-[#1e1e1e] border border-[#333333] rounded-2xl w-full max-w-3xl max-h-[94dvh] overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in-95 duration-200"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className={`h-32 sm:h-40 bg-linear-to-br ${selectedProject.themeClassName} relative flex items-center justify-center shrink-0 overflow-hidden`}>
+            <div className={`h-28 sm:h-40 bg-linear-to-br ${selectedProject.themeClassName} relative flex items-center justify-center shrink-0 overflow-hidden`}>
               <button
                 type="button"
                 onClick={closeProjectDetails}
@@ -268,7 +268,7 @@ export function ProjectsFileContent() {
               )}
             </div>
 
-            <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1">
+            <div className="p-4 sm:p-8 overflow-y-auto custom-scrollbar flex-1">
               <div className="flex items-center gap-3 mb-3">
                 <span
                   className={`px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider border ${PROJECT_MODAL_TYPE_CLASS_BY_CATEGORY[selectedProject.category]}`}
@@ -278,11 +278,11 @@ export function ProjectsFileContent() {
                 <span className="text-[#858585] text-sm font-medium">{selectedProject.year}</span>
               </div>
 
-              <h2 id="project-details-title" className="text-3xl font-bold text-white mb-8">
+              <h2 id="project-details-title" className="text-2xl font-bold text-white mb-6 sm:mb-8 sm:text-3xl">
                 {selectedProject.title}
               </h2>
 
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 <div>
                   <h3 className="text-xl font-bold text-white  mb-3 flex items-center">
                     <Info size={20} className="mr-2 text-[#4fc1ff]" />

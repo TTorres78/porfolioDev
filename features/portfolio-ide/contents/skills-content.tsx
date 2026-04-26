@@ -19,16 +19,16 @@ export function SkillsFileContent() {
   const SelectedIcon = selectedGroupUi.icon;
 
   return (
-    <div className="flex min-h-full flex-col gap-4 font-sans sm:h-full">
+    <div className="flex min-h-full flex-col gap-3 font-sans sm:h-full sm:gap-4">
       <header>
-        <h1 className="text-2xl font-bold text-white lg:text-3xl">Compétences</h1>
-        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-(--color-ide-text)">
+        <h1 className="text-2xl font-bold text-white sm:text-[1.8rem] lg:text-3xl">Compétences</h1>
+        <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-(--color-ide-text)">
           Vue détaillée de mon expertise technique. Sélectionnez une catégorie dans le menu pour
           explorer ma stack.
         </p>
       </header>
 
-      <section className="mt-1 overflow-hidden rounded-2xl border border-(--color-ide-border) bg-[linear-gradient(145deg,var(--color-ide-surface-1),#2a2a2d)] lg:grid lg:grid-cols-[250px_1fr]">
+      <section className="mt-1 overflow-hidden rounded-2xl border border-(--color-ide-border) bg-[linear-gradient(145deg,var(--color-ide-surface-1),#2a2a2d)] lg:grid lg:grid-cols-[230px_1fr]">
         <aside className="border-b border-(--color-ide-border) lg:border-r lg:border-b-0">
           <p className="px-4 pt-4 pb-2 text-xs font-semibold tracking-[0.05em] text-(--color-ide-text-muted) uppercase">
             Catégories
@@ -64,10 +64,10 @@ export function SkillsFileContent() {
           </nav>
         </aside>
 
-        <div className="p-4 lg:p-5">
-          <div className="mb-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-(--color-ide-surface-2)">
-              <SelectedIcon size={18} className={selectedGroupUi.iconClassName} />
+        <div className="p-3 sm:p-4 lg:p-5">
+          <div className="mb-2.5 flex items-center gap-3 sm:mb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-(--color-ide-surface-2) sm:h-10 sm:w-10">
+              <SelectedIcon size={17} className={selectedGroupUi.iconClassName} />
             </div>
             <h2 className="text-xl font-semibold text-white lg:text-2xl">{selectedGroup.title}</h2>
           </div>
@@ -76,18 +76,18 @@ export function SkillsFileContent() {
             {selectedGroup.description} {selectedGroup.details}
           </p>
 
-          <div className="mt-5 space-y-3">
+          <div className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3">
             {selectedGroup.skills.map((skill) => (
               <article
                 key={skill.name}
-                className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3"
+                className="grid grid-cols-[minmax(0,1fr)_minmax(112px,152px)_minmax(0,1fr)] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3"
               >
                 <div className="min-w-0">
-                  <h3 className="text-base font-medium text-white">{skill.name}</h3>
+                  <h3 className="truncate text-base font-medium text-white">{skill.name}</h3>
                 </div>
 
                 <span
-                  className={`justify-self-center inline-flex items-center rounded-md border px-2 py-1 text-[8px] font-semibold tracking-[0.02em] uppercase sm:px-3 sm:text-[11px] sm:tracking-[0.08em] ${selectedGroupUi.activeBorderClassName} ${selectedGroupUi.iconClassName} bg-(--color-ide-surface-2)`}
+                  className={`justify-self-center inline-flex w-full items-center justify-center rounded-md border px-2 py-1 text-[8px] leading-tight font-semibold tracking-[0.01em] uppercase sm:w-auto sm:px-3 sm:text-[11px] sm:tracking-[0.08em] ${selectedGroupUi.activeBorderClassName} ${selectedGroupUi.iconClassName} bg-(--color-ide-surface-2)`}
                 >
                   {skill.level}
                 </span>

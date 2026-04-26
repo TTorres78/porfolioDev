@@ -134,8 +134,8 @@ export function PortfolioIde() {
   };
 
   return (
-    <div className="flex h-svh w-full flex-col overflow-hidden bg-(--color-ide-bg) text-(--color-ide-text) selection:bg-[#264f78]">
-      <header className="flex h-8 items-center justify-between border-b border-(--color-ide-bg) bg-(--color-ide-surface-3) px-3 text-xs select-none">
+    <div className="flex h-dvh min-h-dvh w-full flex-col overflow-hidden bg-(--color-ide-bg) text-(--color-ide-text) selection:bg-[#264f78]">
+      <header className="flex h-8 items-center justify-between border-b border-(--color-ide-bg) bg-(--color-ide-surface-3) px-3 text-[11px] select-none sm:h-9 sm:text-xs">
         <div className="flex space-x-2">
           <div className="h-3 w-3 rounded-full bg-[#ff5f56]" />
           <div className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
@@ -149,7 +149,7 @@ export function PortfolioIde() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className="hidden w-12 flex-col items-center border-r border-(--color-ide-surface-1) bg-(--color-ide-border) py-4 sm:flex">
+        <aside className="hidden w-12 flex-col items-center border-r border-(--color-ide-surface-1) bg-(--color-ide-border) py-3 sm:flex">
           <button
             type="button"
             className={`mb-6 -ml-2 pl-2 transition-colors ${
@@ -193,7 +193,7 @@ export function PortfolioIde() {
         </aside>
 
         {isExplorerOpen ? (
-          <aside className="hidden w-56 flex-col border-r border-(--color-ide-bg) bg-(--color-ide-surface-1) sm:flex">
+          <aside className="hidden w-52 flex-col border-r border-(--color-ide-bg) bg-(--color-ide-surface-1) md:flex lg:w-56">
             <div className="px-5 py-3 text-[11px] font-semibold tracking-wider text-(--color-ide-text) uppercase">
               Explorateur
             </div>
@@ -238,7 +238,11 @@ export function PortfolioIde() {
         ) : null}
 
         <section className="flex min-w-0 flex-1 flex-col bg-(--color-ide-bg)">
-          <div role="tablist" aria-label="Fichiers ouverts" className="flex h-9 overflow-x-auto bg-(--color-ide-surface-1)">
+          <div
+            role="tablist"
+            aria-label="Fichiers ouverts"
+            className="custom-scrollbar flex h-9 overflow-x-auto bg-(--color-ide-surface-1)"
+          >
             {openFiles.map((file) => {
               const fileUi = FILE_UI_BY_ID[file.id];
               const Icon = fileUi.icon;
@@ -248,7 +252,7 @@ export function PortfolioIde() {
               return (
                 <div
                   key={file.id}
-                  className={`group flex min-w-30 max-w-50 items-center border-r border-(--color-ide-border-muted) px-2 transition-colors sm:min-w-35 sm:max-w-55 ${
+                  className={`group flex min-w-26 max-w-44 items-center border-r border-(--color-ide-border-muted) px-1.5 transition-colors sm:min-w-32 sm:max-w-52 sm:px-2 ${
                     isActive
                       ? "border-t border-t-(--color-ide-accent-blue) bg-(--color-ide-bg) text-white"
                       : "bg-(--color-ide-surface-2) text-[#8b949e]"
@@ -268,7 +272,7 @@ export function PortfolioIde() {
                     onKeyDown={(event) => handleTabKeyDown(event, file.id)}
                   >
                     <Icon size={18} className={fileUi.iconClassName} />
-                    <span className="ml-2 truncate text-sm">{file.name}</span>
+                    <span className="ml-2 truncate text-xs sm:text-sm">{file.name}</span>
                   </button>
 
                   <button
@@ -290,7 +294,7 @@ export function PortfolioIde() {
             id={activeFile ? `panel-${activeFile.id}` : undefined}
             role="tabpanel"
             aria-labelledby={activeFile ? `tab-${activeFile.id}` : undefined}
-            className={`relative flex-1 p-3 sm:p-5 md:p-6 lg:p-7 ${
+            className={`relative flex-1 p-3 pb-5 sm:p-4 sm:pb-4 md:p-5 lg:p-6 ${
               isProjectsFileActive
                 ? "overflow-y-auto custom-scrollbar"
                 : "overflow-y-auto custom-scrollbar sm:overflow-hidden"
@@ -299,7 +303,7 @@ export function PortfolioIde() {
             {ActiveFileContent ? (
               <div
                 className={`mx-auto w-full text-(--color-ide-text) ${
-                  isProjectsFileActive ? "max-w-4xl" : "ide-fit-page max-w-5xl sm:h-full"
+                  isProjectsFileActive ? "max-w-4xl" : "max-w-5xl sm:h-full"
                 }`}
               >
                 <ActiveFileContent />

@@ -9,11 +9,11 @@ const LINKEDIN_METHOD = CONTACT_METHODS_BY_ID.linkedin;
 
 export function ContactFileContent() {
   return (
-    <div className="mx-auto flex min-h-full max-w-4xl flex-col items-center justify-start px-2 pb-4 sm:h-full sm:justify-center sm:px-4 font-sans">
-      <h1 className="mb-4 text-center text-2xl font-bold tracking-tight text-white sm:text-3xl">
+    <div className="mx-auto flex min-h-full max-w-4xl flex-col items-center justify-start px-2 pt-1 pb-4 font-sans sm:h-full sm:justify-center sm:px-4 sm:pt-0">
+      <h1 className="mb-3 text-center text-2xl font-bold tracking-tight text-white sm:mb-4 sm:text-3xl">
         Prêt à collaborer ?
       </h1>
-      <p className="mb-5 max-w-2xl text-center text-sm leading-relaxed text-white">
+      <p className="mb-4 max-w-2xl text-center text-sm leading-relaxed text-white sm:mb-5">
         Je suis toujours ouvert aux discussions techniques, aux opportunités ou simplement pour
         faire connaissance. Choisissez votre canal pour échanger.
       </p>
@@ -21,7 +21,7 @@ export function ContactFileContent() {
       <div className="grid w-full max-w-3xl grid-cols-1 gap-4 md:grid-cols-2">
         <a
           href={EMAIL_METHOD.href}
-          className="group relative flex flex-col items-start justify-between gap-5 overflow-hidden rounded-3xl border border-[#333333] bg-[#1e1e1e] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#4fc1ff] hover:shadow-[0_10px_40px_-10px_rgba(79,193,255,0.2)] sm:flex-row sm:items-center md:col-span-2"
+          className="group relative flex flex-col items-start justify-between gap-4 overflow-hidden rounded-3xl border border-[#333333] bg-[#1e1e1e] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-[#4fc1ff] hover:shadow-[0_10px_40px_-10px_rgba(79,193,255,0.2)] sm:flex-row sm:items-center sm:gap-5 sm:p-6 md:col-span-2"
         >
           <div className="absolute top-0 right-0 p-6 opacity-5 transition-all duration-500 group-hover:scale-110 group-hover:opacity-10">
             <Mail size={110} />
@@ -37,7 +37,7 @@ export function ContactFileContent() {
             <p className="mb-4 text-sm text-[#858585]">
               Le moyen le plus rapide de me joindre pour un projet.
             </p>
-            <div className="font-mono text-[11px] leading-tight whitespace-nowrap text-[#cccccc] transition-colors group-hover:text-white sm:text-2xl">
+            <div className="max-w-full overflow-hidden font-mono text-[9px] leading-tight tracking-tight whitespace-nowrap text-[#cccccc] text-ellipsis transition-colors group-hover:text-white sm:text-2xl sm:tracking-normal">
               {EMAIL_METHOD.description}
             </div>
           </div>
