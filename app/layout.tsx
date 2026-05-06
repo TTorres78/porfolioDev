@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "Portfolio - Timothé TORRES",
   description:
     "Portfolio développeur en interface inspirée VS Code, construit avec Next.js et Tailwind CSS.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({
