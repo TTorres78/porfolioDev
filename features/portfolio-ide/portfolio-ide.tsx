@@ -1,6 +1,14 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -21,6 +29,12 @@ import {
   PORTFOLIO_FILES_BY_ID,
   type PortfolioFileId,
 } from "@/features/portfolio-ide/model";
+import {
+  PortfolioSearchFocusProvider,
+  type PortfolioSearchFocus,
+} from "@/features/portfolio-ide/search-navigation-context";
+import { applySearchHighlights, clearSearchHighlights } from "@/features/portfolio-ide/dom-search-highlight";
+import { searchPortfolio, type PortfolioSearchResult } from "@/features/portfolio-ide/search-index";
 import { FILE_UI_BY_ID } from "@/features/portfolio-ide/ui-config";
 
 type SidebarAction = {
@@ -28,6 +42,8 @@ type SidebarAction = {
   label: string;
   icon: LucideIcon;
 };
+
+type SidebarPanelId = "explorer" | "search";
 
 const TOP_SIDEBAR_ACTIONS: SidebarAction[] = [
   { id: "search", label: "Recherche", icon: Search },
@@ -41,12 +57,21 @@ function isPortfolioFileId(value: string): value is PortfolioFileId {
   return Object.hasOwn(PORTFOLIO_FILES_BY_ID, value);
 }
 
+function isSearchSidebarAction(actionId: string) {
+  return actionId === "search";
+}
+
 export function PortfolioIde() {
   const [openFileIds, setOpenFileIds] = useState<PortfolioFileId[]>(DEFAULT_OPEN_FILE_IDS);
   const [activeFileId, setActiveFileId] = useState<PortfolioFileId | null>(DEFAULT_OPEN_FILE_IDS[0]);
-  const [isExplorerOpen, setIsExplorerOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [activeSidebarPanel, setActiveSidebarPanel] = useState<SidebarPanelId>("explorer");
   const [isFolderOpen, setIsFolderOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocus, setSearchFocus] = useState<PortfolioSearchFocus | null>(null);
   const isProjectsFileActive = activeFileId === "projets";
+  const contentPanelRef = useRef<HTMLDivElement | null>(null);
+  const searchResults = useMemo(() => searchPortfolio(searchQuery), [searchQuery]);
 
   const openFiles = useMemo(
     () => openFileIds.map((fileId) => PORTFOLIO_FILES_BY_ID[fileId]),
@@ -59,6 +84,43 @@ export function PortfolioIde() {
   const openFileById = useCallback((fileId: PortfolioFileId) => {
     setOpenFileIds((previous) => (previous.includes(fileId) ? previous : [...previous, fileId]));
     setActiveFileId(fileId);
+  }, []);
+
+  const toggleSidebarPanel = useCallback(
+    (panel: SidebarPanelId) => {
+      if (isSidebarOpen && activeSidebarPanel === panel) {
+        setIsSidebarOpen(false);
+        return;
+      }
+
+      setActiveSidebarPanel(panel);
+      setIsSidebarOpen(true);
+    },
+    [activeSidebarPanel, isSidebarOpen],
+  );
+
+  const openSearchResultFile = useCallback(
+    (result: PortfolioSearchResult) => {
+      openFileById(result.fileId);
+      setActiveSidebarPanel("search");
+      setIsSidebarOpen(true);
+      setSearchFocus({
+        fileId: result.fileId,
+        query: searchQuery.trim(),
+        skillGroupId: result.skillGroupId,
+        projectId: result.projectId,
+        timestamp: Date.now(),
+      });
+    },
+    [openFileById, searchQuery],
+  );
+
+  const handleSearchQueryChange = useCallback((nextValue: string) => {
+    setSearchQuery(nextValue);
+
+    if (nextValue.trim().length === 0) {
+      setSearchFocus(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -88,6 +150,68 @@ export function PortfolioIde() {
       window.history.replaceState(null, "", hash);
     }
   }, [activeFileId]);
+
+  useEffect(() => {
+    const panelElement = contentPanelRef.current;
+    if (!panelElement) {
+      return;
+    }
+
+    if (!searchFocus || searchFocus.fileId !== activeFileId) {
+      clearSearchHighlights(panelElement);
+      return;
+    }
+
+    const normalizedQuery = searchFocus.query.trim();
+    if (!normalizedQuery) {
+      clearSearchHighlights(panelElement);
+      return;
+    }
+
+    const applyHighlights = () => {
+      clearSearchHighlights(panelElement);
+      applySearchHighlights(panelElement, normalizedQuery);
+    };
+
+    let isApplyingHighlights = false;
+    let frame: number | null = null;
+
+    const scheduleApplyHighlights = () => {
+      if (frame !== null) {
+        return;
+      }
+
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        isApplyingHighlights = true;
+        applyHighlights();
+        isApplyingHighlights = false;
+      });
+    };
+
+    scheduleApplyHighlights();
+
+    const observer = new MutationObserver(() => {
+      if (isApplyingHighlights) {
+        return;
+      }
+
+      scheduleApplyHighlights();
+    });
+
+    observer.observe(panelElement, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    return () => {
+      observer.disconnect();
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
+  }, [activeFileId, searchFocus]);
 
   const handleCloseFile = (event: MouseEvent<HTMLButtonElement>, fileId: PortfolioFileId) => {
     event.stopPropagation();
@@ -134,7 +258,8 @@ export function PortfolioIde() {
   };
 
   return (
-    <div className="flex h-dvh min-h-dvh w-full flex-col overflow-hidden bg-(--color-ide-bg) text-(--color-ide-text) selection:bg-[#264f78]">
+    <PortfolioSearchFocusProvider value={{ searchFocus, setSearchFocus }}>
+      <div className="flex h-dvh min-h-dvh w-full flex-col overflow-hidden bg-(--color-ide-bg) text-(--color-ide-text) selection:bg-[#264f78]">
       <header className="flex h-8 items-center justify-between border-b border-(--color-ide-bg) bg-(--color-ide-surface-3) px-3 text-[11px] select-none sm:h-9 sm:text-xs">
         <div className="flex space-x-2">
           <div className="h-3 w-3 rounded-full bg-[#ff5f56]" />
@@ -153,11 +278,11 @@ export function PortfolioIde() {
           <button
             type="button"
             className={`mb-6 -ml-2 pl-2 transition-colors ${
-              isExplorerOpen
+              isSidebarOpen && activeSidebarPanel === "explorer"
                 ? "border-l-2 border-white text-white"
                 : "cursor-pointer text-(--color-ide-text-muted) hover:text-white"
             }`}
-            onClick={() => setIsExplorerOpen((previous) => !previous)}
+            onClick={() => toggleSidebarPanel("explorer")}
             aria-label="Basculer l'explorateur"
           >
             <Files size={28} strokeWidth={1.5} />
@@ -165,6 +290,27 @@ export function PortfolioIde() {
 
           {TOP_SIDEBAR_ACTIONS.map((action) => {
             const Icon = action.icon;
+            const isSearchAction = isSearchSidebarAction(action.id);
+            const isSearchActive = isSidebarOpen && activeSidebarPanel === "search";
+
+            if (isSearchAction) {
+              return (
+                <button
+                  key={action.id}
+                  type="button"
+                  className={`mb-6 cursor-pointer transition-colors ${
+                    isSearchActive
+                      ? "border-l-2 border-white text-white -ml-2 pl-2"
+                      : "text-(--color-ide-text-muted) hover:text-white"
+                  }`}
+                  aria-label={action.label}
+                  onClick={() => toggleSidebarPanel("search")}
+                >
+                  <Icon size={28} strokeWidth={1.5} />
+                </button>
+              );
+            }
+
             return (
               <button
                 key={action.id}
@@ -192,48 +338,111 @@ export function PortfolioIde() {
           </button>
         </aside>
 
-        {isExplorerOpen ? (
+        {isSidebarOpen ? (
           <aside className="hidden w-52 flex-col border-r border-(--color-ide-bg) bg-(--color-ide-surface-1) md:flex lg:w-56">
-            <div className="px-5 py-3 text-[11px] font-semibold tracking-wider text-(--color-ide-text) uppercase">
-              Explorateur
-            </div>
-
-            <div className="flex flex-col">
-              <button
-                type="button"
-                className="flex cursor-pointer items-center px-2 py-1 text-left hover:bg-(--color-ide-surface-2)"
-                onClick={() => setIsFolderOpen((previous) => !previous)}
-              >
-                {isFolderOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                <span className="ml-1 text-sm font-bold text-(--color-ide-text) uppercase">Portfolio</span>
-              </button>
-
-              {isFolderOpen ? (
-                <div className="flex flex-col">
-                  {PORTFOLIO_FILES.map((file) => {
-                    const fileUi = FILE_UI_BY_ID[file.id];
-                    const Icon = fileUi.icon;
-                    const isActive = activeFileId === file.id;
-
-                    return (
-                      <button
-                        key={file.id}
-                        type="button"
-                        className={`flex cursor-pointer items-center px-6 py-1 text-left text-sm transition-colors ${
-                          isActive
-                            ? "bg-(--color-ide-selection) text-white"
-                            : "text-(--color-ide-text) hover:bg-(--color-ide-surface-2)"
-                        }`}
-                        onClick={() => openFileById(file.id)}
-                      >
-                        <Icon size={18} className={fileUi.iconClassName} />
-                        <span className="ml-2">{file.name}</span>
-                      </button>
-                    );
-                  })}
+            {activeSidebarPanel === "explorer" ? (
+              <>
+                <div className="px-5 py-3 text-[11px] font-semibold tracking-wider text-(--color-ide-text) uppercase">
+                  Explorateur
                 </div>
-              ) : null}
-            </div>
+
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    className="flex cursor-pointer items-center px-2 py-1 text-left hover:bg-(--color-ide-surface-2)"
+                    onClick={() => setIsFolderOpen((previous) => !previous)}
+                  >
+                    {isFolderOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                    <span className="ml-1 text-sm font-bold text-(--color-ide-text) uppercase">Portfolio</span>
+                  </button>
+
+                  {isFolderOpen ? (
+                    <div className="flex flex-col">
+                      {PORTFOLIO_FILES.map((file) => {
+                        const fileUi = FILE_UI_BY_ID[file.id];
+                        const Icon = fileUi.icon;
+                        const isActive = activeFileId === file.id;
+
+                        return (
+                          <button
+                            key={file.id}
+                            type="button"
+                            className={`flex cursor-pointer items-center px-6 py-1 text-left text-sm transition-colors ${
+                              isActive
+                                ? "bg-(--color-ide-selection) text-white"
+                                : "text-(--color-ide-text) hover:bg-(--color-ide-surface-2)"
+                            }`}
+                            onClick={() => openFileById(file.id)}
+                          >
+                            <Icon size={18} className={fileUi.iconClassName} />
+                            <span className="ml-2">{file.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              </>
+            ) : (
+              <div className="flex h-full min-h-0 flex-col">
+                <div className="border-b border-(--color-ide-border) px-4 py-3">
+                  <p className="text-[11px] font-semibold tracking-wider text-(--color-ide-text) uppercase">
+                    Recherche
+                  </p>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(event) => handleSearchQueryChange(event.target.value)}
+                    placeholder="Rechercher dans le portfolio"
+                    className="mt-3 w-full rounded border border-(--color-ide-border) bg-(--color-ide-bg) px-3 py-2 text-sm text-white outline-none transition-colors placeholder:text-(--color-ide-text-muted) focus:border-(--color-ide-accent-blue)"
+                  />
+                </div>
+
+                <div className="custom-scrollbar flex-1 overflow-y-auto px-2 py-2">
+                  {searchQuery.trim().length === 0 ? (
+                    <p className="px-2 py-2 text-xs text-(--color-ide-text-muted)">
+                      Tapez un mot-cl&eacute; pour afficher les pages correspondantes.
+                    </p>
+                  ) : searchResults.length === 0 ? (
+                    <p className="px-2 py-2 text-xs text-(--color-ide-text-muted)">
+                      Aucun r&eacute;sultat pour &quot;{searchQuery}&quot;.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {searchResults.map((result) => (
+                        <li key={result.id}>
+                          <button
+                            type="button"
+                            onClick={() => openSearchResultFile(result)}
+                            className="w-full cursor-pointer rounded border border-(--color-ide-border) bg-(--color-ide-surface-2) px-2 py-2 text-left transition-colors hover:border-(--color-ide-accent-blue)/70 hover:bg-(--color-ide-selection)"
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate text-sm text-white">{result.title}</span>
+                              <span className="shrink-0 text-[11px] text-(--color-ide-text-muted)">
+                                {result.matches} occ.
+                              </span>
+                            </div>
+
+                            {result.excerpts.length > 0 ? (
+                              <div className="mt-1 space-y-1">
+                                {result.excerpts.map((excerpt) => (
+                                  <p
+                                    key={`${result.fileId}-${excerpt}`}
+                                    className="text-[11px] leading-relaxed text-(--color-ide-text-muted)"
+                                  >
+                                    {excerpt}
+                                  </p>
+                                ))}
+                              </div>
+                            ) : null}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
           </aside>
         ) : null}
 
@@ -291,6 +500,7 @@ export function PortfolioIde() {
           </div>
 
           <div
+            ref={contentPanelRef}
             id={activeFile ? `panel-${activeFile.id}` : undefined}
             role="tabpanel"
             aria-labelledby={activeFile ? `tab-${activeFile.id}` : undefined}
@@ -345,5 +555,6 @@ export function PortfolioIde() {
         </div>
       </footer>
     </div>
+    </PortfolioSearchFocusProvider>
   );
 }

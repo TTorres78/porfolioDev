@@ -3,35 +3,42 @@
 import { useMemo, useState } from "react";
 
 import { SKILL_GROUPS, type SkillGroupId } from "@/features/portfolio-ide/model";
+import { SKILLS_COPY } from "@/features/portfolio-ide/portfolio-copy";
+import { usePortfolioSearchFocus } from "@/features/portfolio-ide/search-navigation-context";
+import { renderHighlightedText, useSearchHighlightQuery } from "@/features/portfolio-ide/search-highlight";
 import { SKILL_GROUP_UI_BY_ID } from "@/features/portfolio-ide/ui-config";
 
 const DEFAULT_GROUP_ID: SkillGroupId = "front";
 
 export function SkillsFileContent() {
   const [selectedGroupId, setSelectedGroupId] = useState<SkillGroupId>(DEFAULT_GROUP_ID);
+  const { searchFocus, setSearchFocus } = usePortfolioSearchFocus();
+  const searchFocusedGroupId =
+    searchFocus?.fileId === "competences" ? searchFocus.skillGroupId : undefined;
+  const effectiveSelectedGroupId = searchFocusedGroupId ?? selectedGroupId;
 
   const selectedGroup = useMemo(
-    () => SKILL_GROUPS.find((group) => group.id === selectedGroupId) ?? SKILL_GROUPS[0],
-    [selectedGroupId],
+    () => SKILL_GROUPS.find((group) => group.id === effectiveSelectedGroupId) ?? SKILL_GROUPS[0],
+    [effectiveSelectedGroupId],
   );
 
   const selectedGroupUi = SKILL_GROUP_UI_BY_ID[selectedGroup.id];
   const SelectedIcon = selectedGroupUi.icon;
+  const highlightedQuery = useSearchHighlightQuery("competences");
 
   return (
     <div className="flex min-h-full flex-col gap-3 font-sans sm:h-full sm:gap-4">
       <header>
-        <h1 className="text-2xl font-bold text-white sm:text-[1.8rem] lg:text-3xl">Compétences</h1>
+        <h1 className="text-2xl font-bold text-white sm:text-[1.8rem] lg:text-3xl">{SKILLS_COPY.title}</h1>
         <p className="mt-1.5 max-w-3xl text-sm leading-relaxed text-(--color-ide-text)">
-          Vue détaillée de mon expertise technique. Sélectionnez une catégorie dans le menu pour
-          explorer ma stack.
+          {SKILLS_COPY.intro}
         </p>
       </header>
 
       <section className="mt-1 overflow-hidden rounded-2xl border border-(--color-ide-border) bg-[linear-gradient(145deg,var(--color-ide-surface-1),#2a2a2d)] lg:grid lg:grid-cols-[230px_1fr]">
         <aside className="border-b border-(--color-ide-border) lg:border-r lg:border-b-0">
           <p className="px-4 pt-4 pb-2 text-xs font-semibold tracking-[0.05em] text-(--color-ide-text-muted) uppercase">
-            Catégories
+            {SKILLS_COPY.categoriesTitle}
           </p>
 
           <nav className="pt-1 pb-3">
@@ -44,7 +51,10 @@ export function SkillsFileContent() {
                 <button
                   key={group.id}
                   type="button"
-                  onClick={() => setSelectedGroupId(group.id)}
+                  onClick={() => {
+                    setSelectedGroupId(group.id);
+                    setSearchFocus(null);
+                  }}
                   className={`flex w-full items-center gap-3 border-l-2 px-4 py-2.5 text-left transition-colors ${
                     isSelected
                       ? `${groupUi.activeBorderClassName} bg-(--color-ide-surface-2) text-white`
@@ -83,13 +93,15 @@ export function SkillsFileContent() {
                 className="grid grid-cols-[minmax(0,1fr)_minmax(112px,152px)_minmax(0,1fr)] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3"
               >
                 <div className="min-w-0">
-                  <h3 className="truncate text-base font-medium text-white">{skill.name}</h3>
+                  <h3 className="truncate text-base font-medium text-white">
+                    {renderHighlightedText(skill.name, highlightedQuery)}
+                  </h3>
                 </div>
 
                 <span
                   className={`justify-self-center inline-flex w-full items-center justify-center rounded-md border px-2 py-1 text-[8px] leading-tight font-semibold tracking-[0.01em] uppercase sm:w-auto sm:px-3 sm:text-[11px] sm:tracking-[0.08em] ${selectedGroupUi.activeBorderClassName} ${selectedGroupUi.iconClassName} bg-(--color-ide-surface-2)`}
                 >
-                  {skill.level}
+                  {renderHighlightedText(skill.level, highlightedQuery)}
                 </span>
 
                 <span className="justify-self-end text-right text-xs text-(--color-ide-text)">

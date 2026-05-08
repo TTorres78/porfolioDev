@@ -365,11 +365,11 @@ export const SKILL_GROUPS: SkillGroup[] = [
     description: "Création d'interfaces utilisateur interactives, accessibles et responsives.",
     details: "J'accorde une grande importance à l'ergonomie et aux performances de rendu.",
     skills: [
-      { name: "HTML/CSS", level: "Expert", experience: 8 },
+      { name: "HTML/CSS", level: "Avancé", experience: 7 },
       { name: "TypeScript", level: "Avancé", experience: 5 },
       { name: "JavaScript", level: "Avancé", experience: 5 },
-      { name: "VueJS", level: "Avancé", experience: 4 },
-      { name: "Tailwind CSS", level: "Avancé", experience: 3 },
+      { name: "VueJS", level: "Intermédiaire", experience: 4 },
+      { name: "Tailwind CSS", level: "Intermédiaire", experience: 3 },
       { name: "Next.js", level: "En montée en compétence", experience: 1 },
     ],
   },
@@ -379,7 +379,7 @@ export const SKILL_GROUPS: SkillGroup[] = [
     description: "Développement d'APIs robustes, sécurisées et gestion de bases de données.",
     details: "Je conçois des architectures claires avec un focus sur la maintenabilité.",
     skills: [
-      { name: "Symfony", level: "Avancé", experience: 4 },
+      { name: "Symfony", level: "Intermédiaire", experience: 4 },
       { name: "PostgreSQL", level: "Intermédiaire", experience: 3 },
       { name: "Laravel", level: "En montée en compétence", experience: 1 },
       { name: "Node.js", level: "En montée en compétence", experience: 1 },
@@ -391,7 +391,7 @@ export const SKILL_GROUPS: SkillGroup[] = [
     description: "Automatisation du déploiement, intégration continue et hébergement.",
     details: "J'industrialise les livraisons pour garder un cycle de développement fluide.",
     skills: [
-      { name: "Docker", level: "Avancé", experience: 4 },
+      { name: "Docker", level: "Intermédiaire", experience: 4 },
       { name: "CI/CD", level: "Intermédiaire", experience: 3 },
       { name: "Kubernetes", level: "Intermédiaire", experience: 3 },
       { name: "Keycloak", level: "En montée en compétence", experience: 1 },

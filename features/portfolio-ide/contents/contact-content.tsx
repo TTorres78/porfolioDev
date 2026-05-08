@@ -2,6 +2,7 @@
 
 import { GitHubMarkIcon, LinkedInMarkIcon } from "@/features/portfolio-ide/icons";
 import { CONTACT_METHODS_BY_ID } from "@/features/portfolio-ide/model";
+import { CONTACT_COPY } from "@/features/portfolio-ide/portfolio-copy";
 
 const EMAIL_METHOD = CONTACT_METHODS_BY_ID.email;
 const GITHUB_METHOD = CONTACT_METHODS_BY_ID.github;
@@ -11,11 +12,10 @@ export function ContactFileContent() {
   return (
     <div className="mx-auto flex min-h-full max-w-4xl flex-col items-center justify-start px-2 pt-1 pb-4 font-sans sm:h-full sm:justify-center sm:px-4 sm:pt-0">
       <h1 className="mb-3 text-center text-2xl font-bold tracking-tight text-white sm:mb-4 sm:text-3xl">
-        Prêt à collaborer ?
+        {CONTACT_COPY.title}
       </h1>
       <p className="mb-4 max-w-2xl text-center text-sm leading-relaxed text-white sm:mb-5">
-        Je suis toujours ouvert aux discussions techniques, aux opportunités ou simplement pour
-        faire connaissance. Choisissez votre canal pour échanger.
+        {CONTACT_COPY.intro}
       </p>
 
       <div className="grid w-full max-w-3xl grid-cols-1 gap-4 md:grid-cols-2">
@@ -32,11 +32,9 @@ export function ContactFileContent() {
               <div className="rounded-xl bg-[#252526] p-2.5 text-[#4fc1ff] shadow-inner">
                 <Mail size={22} />
               </div>
-              <h2 className="text-lg font-bold text-white sm:text-xl">Email Direct</h2>
+              <h2 className="text-lg font-bold text-white sm:text-xl">{CONTACT_COPY.directEmailTitle}</h2>
             </div>
-            <p className="mb-4 text-sm text-[#858585]">
-              Le moyen le plus rapide de me joindre pour un projet.
-            </p>
+            <p className="mb-4 text-sm text-[#858585]">{CONTACT_COPY.directEmailDescription}</p>
             <div className="max-w-full overflow-hidden font-mono text-[9px] leading-tight tracking-tight whitespace-nowrap text-[#cccccc] text-ellipsis transition-colors group-hover:text-white sm:text-2xl sm:tracking-normal">
               {EMAIL_METHOD.description}
             </div>

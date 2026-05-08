@@ -19,6 +19,8 @@ import {
   type ProjectCard,
   type ProjectCategory,
 } from "@/features/portfolio-ide/model";
+import { PROJECTS_COPY } from "@/features/portfolio-ide/portfolio-copy";
+import { usePortfolioSearchFocus } from "@/features/portfolio-ide/search-navigation-context";
 import {
   PROJECT_PREVIEW_ICON_BY_KEY,
   PROJECT_PREVIEW_ICON_CLASS_BY_KEY,
@@ -123,6 +125,7 @@ function ProjectVisual({ project, modal = false }: { project: ProjectCard; modal
 export function ProjectsFileContent() {
   const [selectedProject, setSelectedProject] = useState<ProjectCard | null>(null);
   const [expandedKeyPointId, setExpandedKeyPointId] = useState<string | null>(null);
+  const { searchFocus } = usePortfolioSearchFocus();
 
   const openProjectDetails = (project: ProjectCard) => {
     setSelectedProject(project);
@@ -155,6 +158,26 @@ export function ProjectsFileContent() {
     };
   }, [selectedProject]);
 
+  useEffect(() => {
+    if (!searchFocus || searchFocus.fileId !== "projets" || !searchFocus.projectId) {
+      return;
+    }
+
+    const projectFromSearch = PROJECT_CARDS.find((project) => project.id === searchFocus.projectId);
+    if (!projectFromSearch) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      setSelectedProject(projectFromSearch);
+      setExpandedKeyPointId(null);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [searchFocus]);
+
   const siteHref = selectedProject?.modalLinks?.siteHref ?? "";
   const sourceHref = selectedProject?.modalLinks?.sourceHref ?? "";
   const annexDocuments = selectedProject?.details.annexDocuments ?? [];
@@ -173,17 +196,28 @@ export function ProjectsFileContent() {
   return (
     <>
       <div className="font-sans">
-        <h1 className="mb-2 flex items-center text-2xl font-bold text-white sm:mb-3 sm:text-3xl">Mes Projets</h1>
+        <h1 className="mb-2 flex items-center text-2xl font-bold text-white sm:mb-3 sm:text-3xl">
+          {PROJECTS_COPY.title}
+        </h1>
         <p className="mb-6 max-w-3xl text-sm leading-relaxed text-(--color-ide-text) sm:mb-8">
-          Cette s&eacute;lection met en avant les projets les plus pertinents au regard de mon exp&eacute;rience
-          et des technologies utilis&eacute;es. Elle n&apos;est pas exhaustive.
+          {PROJECTS_COPY.intro}
         </p>
 
         <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           {PROJECT_CARDS.map((project) => (
             <article
               key={project.id}
-              className="group relative flex flex-col overflow-hidden rounded-xl border border-(--color-ide-border) bg-(--color-ide-surface-1) transition-all duration-300 hover:-translate-y-1 hover:border-(--color-ide-accent-cyan) hover:shadow-2xl hover:shadow-(--color-ide-accent-blue)/10"
+              role="button"
+              tabIndex={0}
+              aria-label={`Ouvrir les détails du projet ${project.title}`}
+              onClick={() => openProjectDetails(project)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  openProjectDetails(project);
+                }
+              }}
+              className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-(--color-ide-border) bg-(--color-ide-surface-1) transition-all duration-300 hover:-translate-y-1 hover:border-(--color-ide-accent-cyan) hover:shadow-2xl hover:shadow-(--color-ide-accent-blue)/10"
             >
               <div className="absolute top-3 right-3 z-10 rounded-md border border-white/10 bg-(--color-ide-bg)/80 px-3 py-1 text-xs font-medium text-(--color-ide-text) backdrop-blur">
                 {project.year}
@@ -218,13 +252,9 @@ export function ProjectsFileContent() {
                   ))}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => openProjectDetails(project)}
-                  className="mt-2 inline-flex w-fit cursor-pointer items-center gap-1 text-sm text-(--color-ide-text) transition-colors hover:text-(--color-ide-accent-cyan)"
-                >
-                  D&eacute;tails <ArrowUpRight size={14} />
-                </button>
+                <span className="mt-2 inline-flex w-fit items-center gap-1 text-sm text-(--color-ide-text) transition-colors group-hover:text-(--color-ide-accent-cyan)">
+                  {PROJECTS_COPY.detailsCta} <ArrowUpRight size={14} />
+                </span>
               </div>
             </article>
           ))}
@@ -286,7 +316,7 @@ export function ProjectsFileContent() {
                 <div>
                   <h3 className="text-xl font-bold text-white  mb-3 flex items-center">
                     <Info size={20} className="mr-2 text-[#4fc1ff]" />
-                    A propos du projet
+                    {PROJECTS_COPY.modalAboutTitle}
                   </h3>
                   <p className="text-[#cccccc] leading-relaxed text-base">
                     {selectedProject.details.context}
@@ -296,7 +326,7 @@ export function ProjectsFileContent() {
                 <div>
                   <h3 className="text-xl font-bold text-white mb-4 flex items-center">
                     <Star size={20} className="mr-2 text-[#d7ba7d]" />
-                    Fonctionnalit&eacute;s cl&eacute;s
+                    {PROJECTS_COPY.modalFeaturesTitle}
                   </h3>
                   <ul className="space-y-3">
                     {selectedProject.details.keyPoints.map((point, index) => {
@@ -331,7 +361,7 @@ export function ProjectsFileContent() {
                 <div>
                   <h3 className="text-xl font-bold text-white mb-4 flex items-center">
                     <Code2 size={20} className="mr-2 text-[#ce9178]" />
-                    Technologies utilis&eacute;es
+                    {PROJECTS_COPY.modalTechnologiesTitle}
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {selectedProject.stack.map((tech) => (
@@ -349,7 +379,7 @@ export function ProjectsFileContent() {
                   <div>
                     <h3 className="text-xl font-bold text-white mb-4 flex items-center">
                       <FileText size={20} className="mr-2 text-[#4fc1ff]" />
-                      Documents annexes
+                      {PROJECTS_COPY.modalAnnexTitle}
                     </h3>
                     <ul className="space-y-3">
                       {annexDocuments.map((document) => {
@@ -401,7 +431,7 @@ export function ProjectsFileContent() {
                     rel="noreferrer"
                     className="bg-[#007acc] hover:bg-[#005999] text-white font-medium py-3 px-6 rounded-lg flex items-center justify-center transition-colors"
                   >
-                    <ExternalLink size={18} className="mr-2" /> Visiter le site
+                    <ExternalLink size={18} className="mr-2" /> {PROJECTS_COPY.modalVisitSiteCta}
                   </a>
                 ) : (
                   <button
@@ -409,7 +439,7 @@ export function ProjectsFileContent() {
                     disabled
                     className="cursor-not-allowed bg-[#007acc]/45 text-white/75 font-medium py-3 px-6 rounded-lg flex items-center justify-center"
                   >
-                    <ExternalLink size={18} className="mr-2" /> Visiter le site
+                    <ExternalLink size={18} className="mr-2" /> {PROJECTS_COPY.modalVisitSiteCta}
                   </button>
                 )}
                 {isSourceButtonEnabled ? (
@@ -419,7 +449,7 @@ export function ProjectsFileContent() {
                       rel="noreferrer"
                       className="bg-[#333333] hover:bg-[#424242] border border-[#444444] text-white font-medium py-3 px-6 rounded-lg flex items-center justify-center transition-colors"
                     >
-                      <GitHubMarkIcon size={18} className="mr-2" /> Code source
+                      <GitHubMarkIcon size={18} className="mr-2" /> {PROJECTS_COPY.modalSourceCta}
                     </a>
                 ) : (
                   <button
@@ -427,7 +457,7 @@ export function ProjectsFileContent() {
                     disabled
                     className="cursor-not-allowed bg-[#333333]/70 border border-[#444444] text-white/60 font-medium py-3 px-6 rounded-lg flex items-center justify-center"
                   >
-                    <GitHubMarkIcon size={18} className="mr-2" /> Code source
+                    <GitHubMarkIcon size={18} className="mr-2" /> {PROJECTS_COPY.modalSourceCta}
                   </button>
                 )}
               </div>
